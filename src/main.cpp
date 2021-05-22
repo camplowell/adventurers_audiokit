@@ -8,18 +8,18 @@
 // See imgui_impl_glfw.cpp for details.
 
 #include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl2.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl2.h"
 
-#include "audio_main.h"
+//#include "audio_main.h"
 
 #include <stdio.h>
 
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
 #endif
-// glfw is already a submodule of Dear IMGUI, no need for multiple copies here
-#include "examples/libs/glfw/include/GLFW/glfw3.h"
+
+#include <GLFW/glfw3.h>
 
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
@@ -90,12 +90,12 @@ int main(int, char**)
 
     // Our state
     bool playing = true;
-    //float pitch = 440.0f;
-    //float gain = 0.25f;
+    float pitch = 440.0f;
+    float gain = 0.25f;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Set up Soundio context
-    sound_init();
+    //sound_init();
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -106,7 +106,7 @@ int main(int, char**)
         // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
         // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
         glfwPollEvents();
-        update();
+        //update();
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL2_NewFrame();
@@ -120,8 +120,8 @@ int main(int, char**)
         if (ImGui::Button(playing ? "Pause": "Play")) {
             playing = !playing;
         }
-        ImGui::SliderFloat("pitch", getPitch(), 40.0f, 4000.0f);
-        ImGui::SliderFloat("gain", getGain(), 0.0f, 1.0f);
+        ImGui::SliderFloat("pitch", &pitch, 40.0f, 4000.0f);
+        ImGui::SliderFloat("gain", &gain, 0.0f, 1.0f);
 
         ImGui::End();
 
@@ -177,7 +177,7 @@ int main(int, char**)
     }
 
     // Deinit soundio
-    sound_deinit();
+    //sound_deinit();
 
     // Cleanup
     ImGui_ImplOpenGL2_Shutdown();

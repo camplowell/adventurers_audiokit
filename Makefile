@@ -1,55 +1,31 @@
--include defs.Makefile
-
-##---------------------------------------------------------------------
-## CONFIGURATION
-##---------------------------------------------------------------------
-
-CC := clang
-CXX := clang++
+include defs.Makefile
 
 EXE = adventurers_audiokit
 
-SRC := src/main.cpp
+BASE_DIR := src
 
-INCLUDE_DIRS = src lib/imgui lib/imgui/backends lib/libsoundio lib/libsoundio/build
+SRCS := main.cpp backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp
 
- # Ensure the specified directories exist
-# Mirrors the file structure in the objs and deps
-$(shell mkdir -p $(BIN_DIR))
-$(shell mkdir -p $(DEPS_DIR))
+INCLUDES := src lib/imgui
 
-$(shell mkdir -p $(dir $(OBJS)))
-$(shell mkdir -p $(dir $(DEPS)))
+CXXFLAGS = 
+LIBS = 
+
+DONE_MSG = @printf "\nDone.\n\n"
 
 ##---------------------------------------------------------------------
-## PREPROCESSING
+## AUTOMATED MANDATORY PROCESSES
 ##---------------------------------------------------------------------
 
-OBJS := $(patsubst %, $(BIN_DIR)/%.o, $(basename $(SRCS)))
+# Add base directory to sources
+SRCS := $(addprefix $(BASE_DIR)/, $(SRCS))
 
-DEPS := $(patsubst $, $(BIN_DIR)/%.d, $(basename $(SRCS)))
-
-CXXFLAGS = $(addprefix -I, $(INCLUDE_DIRS))
-
-CXXFLAGS += -g -Wall -Wformat
-
-# Flag to find dependencies
-DEPFLAGS = -MT $@ -MD -MP -MF $(DEPS_DIR)/$<.Td
-# Compile a c file
-COMPILE.c = $(CC) $(DEPFLAGS) $(CFLAGS) -c -o $@
-# Compile a c++ file
-COMPILE.cc = $(CXX) $(DEPFLAGS) $(CXXFLAGS) -c -o $@
-# Convert dependencies transactionally
-POSTCOMPILE = mv -f $(DEPDIR)/$*.Td $(DEPDIR)/$*.d
-# Link o files
-LINK.o = $(LD) $(LDFLAGS) $(LDLIBS) -o $@
-
-CFLAGS = 
-LIBS =
+ALLOBJS = $(shell find $(BINDIR) -name '*.o')
 
 ##---------------------------------------------------------------------
 ## BUILD FLAGS PER PLATFORM
 ##---------------------------------------------------------------------
+UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "Linux"
@@ -70,7 +46,7 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 	CFLAGS = $(CXXFLAGS)
 endif
 
-ifeq ($(OS), Windows_NT) #WINDOWS
+ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
 	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32
 
@@ -79,9 +55,29 @@ ifeq ($(OS), Windows_NT) #WINDOWS
 endif
 
 ##---------------------------------------------------------------------
-## BUILD RULES
+## MAKE RULES
 ##---------------------------------------------------------------------
 
-all: 
-	@echo Making all
+.PHONY: all
+all: $(EXE)
+	$(DONE_MSG)
+
+.PHONY: compall
+compall:
+	@printf "$(p_green)Compiling imgui$(p_no)\n"
 	$(MAKE) -f lib/imgui.Makefile all
+	@printf "\n\n"
+	@printf "$(p_green)Compiling src$(p_no)\n"
+	make $(OBJS)
+
+.PHONY: clean
+clean:
+	rm -r $(BINDIR)/*
+	rm $(EXE)
+	$(DONE_MSG)
+
+$(EXE): compall
+	@printf "$(p_blue)Linking$(p_no) $@\n"
+	$(CXX) -o $@ $(shell find $(BINDIR) -name '*.o') $(CXXFLAGS) $(LIBS)
+
+# Compilation rules defined in defs.Makefile
