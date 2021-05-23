@@ -1,11 +1,12 @@
 #pragma once
+#include "imgui.h"
 
-class adventurersAudiokit {
-    public:
-        adventurersAudiokit();
-        void loop();
-        ~adventurersAudiokit();
-    private:
-        int pitch;
-        int gain;
-};
+namespace Audiokit_UI {
+    void setupIO(ImGuiIO& io);
+    void loadFonts(ImGuiIO& io);
+    ImVec4 getClearColor();
+
+    void setup();
+    void loop();
+    void exit();
+}

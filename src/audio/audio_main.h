@@ -1,3 +1,4 @@
+#pragma once
 // Include soundio as a C library, not C++
 extern "C" {
     #include "soundio/soundio.h"
@@ -8,12 +9,19 @@ extern "C" {
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+namespace AudioModule {
+    const float TWO_PI = 2.0f * 3.1415926535f;
+    float *frequency;
+    float *gain;
 
+    static int setup();
+    static void loop();
+    static void exit();
+}
+/*
 static const float TWO_PI = 2.0F * 3.1415926535f;
 static float seconds_offset = 0.0f;
-static float frequency = 440.0f;
 static float phase = 0.0f;
-static float gain = 1.0f;
 
 struct SoundIo *soundio;
 struct SoundIoDevice *device;
@@ -112,3 +120,4 @@ static void sound_deinit() {
     soundio_device_unref(device);
     soundio_destroy(soundio);
 }
+*/

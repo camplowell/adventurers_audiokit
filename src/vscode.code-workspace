@@ -5,6 +5,16 @@
 		}
 	],
 	"settings": {
-		"makefile.extensionOutputFolder": "./.vscode"
+		"makefile.extensionOutputFolder": "./.vscode",
+		"C_Cpp.default.includePath": [
+			"${default}",
+			"src",
+			"lib/imgui",
+			"lib/libsoundio",
+			"lib/libsoundio/build",
+			"/usr/local/lib",
+			"/opt/local/lib",
+			"/opt/homebrew/lib"
+		],
 	}
 }

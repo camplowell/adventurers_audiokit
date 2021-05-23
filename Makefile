@@ -4,7 +4,8 @@ EXE = adventurers_audiokit
 
 BASE_DIR := src
 
-SRCS := main.cpp backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp
+SRCS := main.cpp adventurers_audiokit.cpp \
+backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp
 
 INCLUDES := src lib/imgui
 
@@ -62,6 +63,13 @@ endif
 all: $(EXE)
 	$(DONE_MSG)
 
+.PHONY: clean
+clean:
+	rm -r $(BINDIR)/*
+	rm $(EXE)
+	$(DONE_MSG)
+
+# Compile all source code (if applicable)
 .PHONY: compall
 compall:
 	@printf "$(p_green)Compiling imgui$(p_no)\n"
@@ -70,12 +78,7 @@ compall:
 	@printf "$(p_green)Compiling src$(p_no)\n"
 	make $(OBJS)
 
-.PHONY: clean
-clean:
-	rm -r $(BINDIR)/*
-	rm $(EXE)
-	$(DONE_MSG)
-
+# Tell the linker to link the exe
 $(EXE): compall
 	@printf "$(p_blue)Linking$(p_no) $@\n"
 	$(CXX) -o $@ $(shell find $(BINDIR) -name '*.o') $(CXXFLAGS) $(LIBS)
