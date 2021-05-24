@@ -16,5 +16,9 @@
 			"/opt/local/lib",
 			"/opt/homebrew/lib"
 		],
+		"files.associations": {
+			"cstdlib": "cpp",
+			"locale": "cpp"
+		},
 	}
 }

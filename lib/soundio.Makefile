@@ -18,19 +18,37 @@ include defs.Makefile
 
 BASE_DIR := lib/libsoundio
 
-INCLUDES = $(BASE_DIR) $(BASE_DIR)/build
+SRCS := channel_layout.c coreaudio.c dummy.c os.c ring_buffer.c soundio.c util.c
+
+
+
+
+INCLUDES := $(BASE_DIR) $(BASE_DIR)/build
 
 ##---------------------------------------------------------------------
 ## AUTOMATED TASKS
 ##---------------------------------------------------------------------
 
 # Add base directory to sources
-SRCS := $(addprefix $(BASE_DIR)/, $(SRCS))
+SRCS := $(addprefix $(BASE_DIR)/src/, $(SRCS))
 
 ##---------------------------------------------------------------------
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
-all:
+all: checklib complib
+
+.PHONY: checklib
+checklib:
+	@printf "$(p_purple)Checking for audio libraries$(p_no)\n"
 	@mkdir -p $(BASE_DIR)/build
-	cd $(BASE_DIR)/build; cmake ..
+	cd $(BASE_DIR)/build; cmake ..;
+.PHONY: complib
+complib: $(OBJS)
+
+$(BINDIR)/%.o: %.c
+#   Create any required directories and announce compilation
+	@mkdir -p $(dir $@)
+	$(COMP_MESSAGE)
+#   Compile the corresponding c++ file
+	$(COMPILE.c) -o $@ $<

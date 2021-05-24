@@ -20,7 +20,7 @@ BASE_DIR := lib/imgui
 
 SRCS := imgui.cpp imgui_draw.cpp imgui_tables.cpp imgui_widgets.cpp
 
-INCLUDES = $(BASE_DIR)
+INCLUDES := $(BASE_DIR)
 
 ##---------------------------------------------------------------------
 ## AUTOMATED TASKS
@@ -34,3 +34,10 @@ SRCS := $(addprefix $(BASE_DIR)/, $(SRCS))
 ##---------------------------------------------------------------------
 
 all: $(OBJS)
+
+$(BINDIR)/%.o: %.cpp
+#   Create any required directories and announce compilation
+	@mkdir -p $(dir $@)
+	$(COMP_MESSAGE)
+#   Compile the corresponding c++ file
+	$(COMPILE.cpp) -o $@ $<

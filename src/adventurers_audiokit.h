@@ -8,5 +8,5 @@ namespace Audiokit_UI {
 
     void setup();
     void loop();
-    void exit();
+    void shutdown();
 }

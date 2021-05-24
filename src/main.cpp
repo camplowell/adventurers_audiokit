@@ -112,7 +112,7 @@ int main() {
     }
 
     // Destructor stuff
-    Audiokit_UI::exit();
+    Audiokit_UI::shutdown();
 
     // Cleanup
     ImGui_ImplOpenGL2_Shutdown();

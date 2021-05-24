@@ -7,6 +7,7 @@ CC = clang
 CXX = clang++
 
 BINDIR := bin
+INCLUDES :=
 
 CFLAGS = 
 CPPFLAGS = $(CFLAGS)
@@ -41,25 +42,4 @@ INCTAGS = $(addprefix -I, $(INCLUDES))
 COMPILE.cpp = $(CXX) $(INCTAGS) $(CPPFLAGS) -c
 COMPILE.c   = $(CC)  $(INCTAGS) $(CFLAGS)   -c
 
-COMP_MESSAGE = @printf "$(p_purple)Compiling$(p_no) $\n"
-
-$(BINDIR)/%.o: %.cpp
-#   Create any required directories and announce compilation
-	@mkdir -p $(dir $@)
-	$(COMP_MESSAGE)
-#   Compile the corresponding c++ file
-	$(COMPILE.cpp) -o $@ $<
-
-$(BINDIR)/%.o: %.cc
-#   Create any required directories and announce compilation
-	@mkdir -p $(dir $@)
-	$(COMP_MESSAGE)
-#   Compile the corresponding c++ file
-	$(COMPILE.cpp) -o $@ $<
-
-$(BINDIR)/%.o: %.c
-#   Create any required directories and announce compilation
-	@mkdir -p $(dir $@)
-	$(COMP_MESSAGE)
-#   Compile the corresponding c++ file
-	$(COMPILE.c) -o $@ $< 
+COMP_MESSAGE = @printf "$(p_purple)Compiling$(p_no) $<\n $(p_blue)Include tags:$(p_no) $(INCTAGS)\n"

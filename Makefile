@@ -5,7 +5,8 @@ EXE = adventurers_audiokit
 BASE_DIR := src
 
 SRCS := main.cpp adventurers_audiokit.cpp \
-backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp
+backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp \
+audio/audio_main.cpp
 
 INCLUDES := src lib/imgui
 
@@ -39,6 +40,7 @@ endif
 ifeq ($(UNAME_S), Darwin) #APPLE
 	ECHO_MESSAGE = "Mac OS X"
 	LIBS += -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo
+	LIBS += -framework CoreAudio -framework AudioUnit
 	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib
 	#LIBS += -lglfw3
 	LIBS += -lglfw
@@ -75,6 +77,9 @@ compall:
 	@printf "$(p_green)Compiling imgui$(p_no)\n"
 	$(MAKE) -f lib/imgui.Makefile all
 	@printf "\n\n"
+	@printf "$(p_green)Compiling libsoundio$(p_no)\n"
+	$(MAKE) -f lib/soundio.Makefile all
+	@printf "\n\n"
 	@printf "$(p_green)Compiling src$(p_no)\n"
 	make $(OBJS)
 
@@ -83,4 +88,9 @@ $(EXE): compall
 	@printf "$(p_blue)Linking$(p_no) $@\n"
 	$(CXX) -o $@ $(shell find $(BINDIR) -name '*.o') $(CXXFLAGS) $(LIBS)
 
-# Compilation rules defined in defs.Makefile
+$(BINDIR)/%.o: %.cpp
+#   Create any required directories and announce compilation
+	@mkdir -p $(dir $@)
+	$(COMP_MESSAGE)
+#   Compile the corresponding c++ file
+	$(COMPILE.cpp) -o $@ $<
