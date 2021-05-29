@@ -47,15 +47,17 @@ void Audiokit_UI::loop() {
     // 3. Show another simple window.
     if (show_another_window)
     {
-        static float* freq = AudioModule::getFrequency();
-        static float* gain = AudioModule::getAmplitude();
+        float freq = AudioModule::getFrequency();
+        float gain = AudioModule::getAmplitude();
 
         ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Sine generator controls are here");
         // Drag box for the sine generator frequency
-        ImGui::DragFloat("Frequncy", freq, 1.0f, 40.0f, 4000.0f, "%.3f", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat);
+        ImGui::DragFloat("Frequncy", &freq, 1.0f, 40.0f, 4000.0f, "%.3f", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat);
+        AudioModule::setFrequency(freq);
         // Drag box for the sine generator amblitude
-        ImGui::DragFloat("Amplitude", gain, 0.005f, 0.0f, 1.0f, "%.3f");
+        ImGui::DragFloat("Amplitude", &gain, 0.005f, 0.0f, 1.0f, "%.3f");
+        AudioModule::setAmplitude(gain);
 
         if (ImGui::Button("Close Me"))
             show_another_window = false;
@@ -65,7 +67,7 @@ void Audiokit_UI::loop() {
 
 // Called before exiting (can hang the program before exit)
 void Audiokit_UI::shutdown() {
-
+    AudioModule::shutdown();
 }
 
 void Audiokit_UI::setupIO(ImGuiIO& io) {

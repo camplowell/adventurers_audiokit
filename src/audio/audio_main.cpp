@@ -1,4 +1,12 @@
-#include "audio/audio_main.h"
+#include "./audio_main.h"
+#include "./audio_controls.h"
+
+#ifdef _WINDOWS
+#include <windows.h>
+#else
+#include <unistd.h>
+#define Sleep(x) usleep((x)*1000)
+#endif
 
 using namespace AudioModule;
 static const float TWO_PI = 2.0f * 3.1415926535f;
@@ -7,8 +15,8 @@ struct SoundIo *soundio;
 struct SoundIoDevice *device;
 struct SoundIoOutStream *outstream;
 
-float frequency;
-float gain;
+LinearSmoothedFloat frequency = {440.0f, 0.2f, 44100.0f};
+LinearSmoothedFloat gain = {0.0f, 0.2f, 44100.0f};
 
 float phase;
 
@@ -18,26 +26,45 @@ void closeStream();
 void closeAudio();
 
 int AudioModule::setup() {
-    frequency = 440.0f;
-    gain = 1.0f;
+    int err;
+    if (err = setupAudio()) {
+        return err;
+    }
 
-    return setupAudio();
+    // Set up gain smoothing
+    gain.setSmoothing(0.02f, outstream->sample_rate);
+    frequency.setSmoothing(0.01f, outstream->sample_rate);
+
+    gain.set(1.0f);
+    frequency.set(440.0f);
+    
+    return 0;
 }
 
+void AudioModule::shutdown() {
+    gain.setSmoothing(0.01f, outstream->sample_rate);
+    gain.set(0.0f);
+    Sleep(100);
+    closeAudio();
+}
 void AudioModule::loop() {
     soundio_flush_events(soundio);
 }
 
-void AudioModule::shutdown() {
-    closeAudio();
+float AudioModule::getFrequency() {
+    return frequency.getTarget();
 }
 
-float* AudioModule::getFrequency() {
-    return &frequency;
+void AudioModule::setFrequency(float freq) {
+    frequency.set(freq);
 }
 
-float* AudioModule::getAmplitude() {
-    return &gain;
+float AudioModule::getAmplitude() {
+    return gain.getTarget();
+}
+
+void AudioModule::setAmplitude(float amp) {
+    gain.set(amp);
 }
 
 static void write_callback(struct SoundIoOutStream *outstream,
@@ -50,6 +77,9 @@ static void write_callback(struct SoundIoOutStream *outstream,
     int frames_left = frame_count_max;
     int err;
 
+    gain.update();
+    frequency.update();
+
     while (frames_left > 0) {
         int frame_count = frames_left;
 
@@ -61,9 +91,9 @@ static void write_callback(struct SoundIoOutStream *outstream,
         if (!frame_count)
             break;
 
-        float radians_per_sample = (frequency * TWO_PI) / float_sample_rate;
         for (int frame = 0; frame < frame_count; frame += 1) {
-            float sample = sinf(phase) * gain;
+            float radians_per_sample = (frequency.getNext() * TWO_PI) / float_sample_rate;
+            float sample = sinf(phase) * gain.getNext();
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
                 *ptr = sample;
@@ -136,7 +166,9 @@ int openStream(int index) {
 
 void closeStream() {
     soundio_outstream_destroy(outstream);
+    printf("Audio channel closed\n");
     soundio_device_unref(device);
+    printf("Released device\n");
 }
 
 void closeAudio() {
