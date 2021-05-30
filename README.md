@@ -30,7 +30,7 @@ Currently, it does very little, as the infrastructure to perform more advanced o
 - [ ] Deal with audio device changes
 - [ ] State machine for UI "pages"
 
-### Before V0.0.1 (Proof of concept) ![Progress](https://progress-bar.dev/0/?scale=11&tittle=progress&color=babbaca&suffix=%2F11)
+### Before V0.0.1 (Proof of concept) ![Progress](https://progress-bar.dev/0/?scale=12&tittle=progress&color=babbaca&suffix=%2F12)
 - [ ] Initialize node tree from JSON ("effect" units)
 - [ ] Tree of effects from JSON ("room" units)
 - [ ] Load gui elements from effect file
