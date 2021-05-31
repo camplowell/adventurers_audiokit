@@ -16,6 +16,7 @@ CC = clang
 CXX = clang++
 
 BINDIR := bin
+DOCDIR := doc
 INCLUDES :=
 
 CFLAGS = 

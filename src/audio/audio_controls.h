@@ -10,7 +10,9 @@
 #include <atomic>
 #include "util/vec.h"
 
-/** A superclass for lock-free and thread safe Node inputs */
+/**
+ * @brief A superclass for lock-free and thread safe Node inputs
+ */
 template <typename T>
 class AudioControl {
     public:
@@ -24,7 +26,7 @@ class AudioControl {
         virtual void update() = 0;
 };
 
-/** A linearly smoothed, lock-free and thread-safe float parameter. */
+/** @brief A linearly smoothed, lock-free and thread-safe float parameter. */
 class LinearSmoothedFloat : public AudioControl<float> {
     public:
         LinearSmoothedFloat(float value, float transitionSeconds = 0.01f, float sampleRate = 44100.0f);
@@ -36,7 +38,7 @@ class LinearSmoothedFloat : public AudioControl<float> {
         /** Set the sample rate for calculating smoothing time */
         void setSampleRate(float);
 
-        /** Set how long the smoothing takes */
+        /** Set how long the smoothing takes in seconds */
         void setSmoothing(float transitionSeconds);
 
         /** Update the audio thread's view of the target value */
@@ -63,7 +65,7 @@ class LinearSmoothedFloat : public AudioControl<float> {
         
 };
 
-// A Vec3 with linearly smoothed channels
+/** @brief A Vec3 with linearly smoothed channels */
 class LinearSmoothedVec3 : public AudioControl<Vec3>{
     public:
         LinearSmoothedVec3(Vec3 value, float transitionSeconds, float sampleRate);
@@ -74,6 +76,7 @@ class LinearSmoothedVec3 : public AudioControl<Vec3>{
 
         void update() override;
 
+        /** Iterate to the next value and return */
         Vec3 getNext();
 
         /** Retrieve the current value without iterating */

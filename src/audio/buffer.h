@@ -12,6 +12,11 @@
 #include "util/assert.h"
 #include "./audio_controls.h"
 
+/**
+ * @brief An abstract class for buffers of various types
+ * 
+ * @tparam T The datatype the buffer contains
+ */
 template <typename T>
 struct Buffer {
     virtual T& get(int index) = 0;

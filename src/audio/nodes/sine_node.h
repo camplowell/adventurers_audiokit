@@ -12,11 +12,13 @@
 
 namespace audio_graph {
 
-    /** Simple sinewave generator node */
+    /** @brief Simple sinewave generator node; mainly for testing */
     class SineNode : public Node {
         public:
             SineNode(): amplitude({1.0f}), frequency({440.0f}) {}
+            /// The amplitude of the generated wave
             LinearSmoothedFloat amplitude;
+            /// The frequency of the generated wave
             LinearSmoothedFloat frequency;
         protected:
             static constexpr float TWO_PI = 2.0f * 3.1415926535f;

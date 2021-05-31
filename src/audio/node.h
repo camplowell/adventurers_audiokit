@@ -9,13 +9,36 @@
 #include "./buffer.h"
 #include "util/assert.h"
 
+/**
+ * @brief A namespace for audio nodes and their properties
+ * 
+ */
 namespace audio_graph {
 
+    /**
+     * @brief A struct for conveying stream-specific parameters to Nodes.
+     */
     struct PlaybackInitialisationInfo {
         float sampleRate;
         int blockSize;
     };
 
+    /**
+     * @brief A modular unit for audio processing.
+     * 
+     * \paragraph Usage Using nodes
+     * First, instantiate the node in a way specific to the superclass. <br>
+     * Then, you need to initialize the node to the current playback properties.
+     * You can do this by calling AudioModule::initialize(audio_graph::Node*) <br>
+     * Once the node is fully initialized, it can then be set as the root node
+     * by calling AudioModule::setRoot(audio_graph::Node*)
+     * 
+     * \paragraph Implementing Implementing a node
+     * When implementing a node, you need to overload: <br>
+     * prepareToPlay(const PlaybackInitialisationInfo&) <br>
+     * prefetchBlock() <br>
+     * process(PositionalChannelBuffer& out)
+     */
     class Node {
         public:
             virtual ~Node() {}

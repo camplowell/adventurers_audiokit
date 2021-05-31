@@ -9,9 +9,7 @@
 #pragma once
 #include <math.h>
 
-/** 3d vector class with extra utility functions and overloaded operators
-* Components can be referenced as [x, y, z], [r, g, b], or [w, l, h]
-*/
+/** 3d vector class with extra utility functions and overloaded operators */
 struct Vec3 {
     float x, y, z;
     //float& r = x, g = y, b = z;

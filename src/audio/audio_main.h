@@ -16,6 +16,11 @@
 extern "C" {
     #include "soundio/soundio.h"
 }
+
+/**
+ * @brief A namespace for handling global audio functionality
+ * 
+ */
 namespace AudioModule {
     /** Get the volume of the program output */
     float getGlobalGain();

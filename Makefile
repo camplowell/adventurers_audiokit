@@ -88,8 +88,13 @@ all: $(EXE)
 .PHONY: clean
 clean:
 	rm -rf $(BINDIR)/*
+	rm -rf $(DOCDIR)/*
 	rm -f $(EXE)
 	$(DONE_MSG)
+
+.PHONY: doc
+doc: $(BASE_DIR)
+	doxygen Doxygen_Config
 
 # Compile all source code (if applicable)
 .PHONY: compall
