@@ -43,3 +43,24 @@ Currently, it does very little, as the infrastructure to perform more advanced o
   - [ ] Pattern and tempo trigger generator
 - [ ] File picker
 - [ ] Fade between rooms
+
+## Building
+Build management is done through GNU Make; 
+This is natively supported on Mac and Linux, but requires a shell to run on Windows.
+Make targets:
+- all: Builds the code (Clang / Clang++)
+- doc: Generates HTML documentation
+- clean: Removes built files and clears the documentation folder.
+
+## Dependencies
+Dear IMGUI (submodule)
+- GLFW
+- OpenGL2
+
+Libsoundio (submodule)
+- cmake
+- ALSA library (optional)
+- libjack2 (optional)
+- libpulseaudio (optional)
+
+Optional dependencies will build if installed, and will be skipped if not present.
