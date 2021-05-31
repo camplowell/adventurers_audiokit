@@ -1,13 +1,25 @@
+/*
+ * Copyright (c) 2021 Lowell Camp
+ * 
+ * This file is part of the Adventurer's Audiokit,
+ * which is licensed under the Mozilla Public License 2.0
+ * See https://opensource.org/licenses/MPL-2.0
+ */
+
 #pragma once
 #include <atomic>
 #include "util/vec.h"
 
+/** A superclass for lock-free and thread safe Node inputs */
 template <typename T>
 class AudioControl {
     public:
         /** Set the value of the control */
         virtual void set(T value) = 0;
+
+        /** Get the most recently set value */
         virtual T getTarget() = 0;
+
         /** Update the audio thread's view of the value */
         virtual void update() = 0;
 };
@@ -16,17 +28,23 @@ class AudioControl {
 class LinearSmoothedFloat : public AudioControl<float> {
     public:
         LinearSmoothedFloat(float value, float transitionSeconds = 0.01f, float sampleRate = 44100.0f);
-        /** Set the next target value */
+
         void set(float target) override;
+
         float getTarget() override;
+
         /** Set the sample rate for calculating smoothing time */
         void setSampleRate(float);
+
         /** Set how long the smoothing takes */
         void setSmoothing(float transitionSeconds);
+
         /** Update the audio thread's view of the target value */
         void update() override;
+
         /** Iterate to the next value and return */
         float getNext();
+
         /** Retrieve the current value without iterating */
         float peek();
     private:
@@ -49,13 +67,15 @@ class LinearSmoothedFloat : public AudioControl<float> {
 class LinearSmoothedVec3 : public AudioControl<Vec3>{
     public:
         LinearSmoothedVec3(Vec3 value, float transitionSeconds, float sampleRate);
-        /** Set the next target value */
+        
         void set(Vec3 target) override;
+
         Vec3 getTarget() override;
-        /** Update the audio thread's view of the target value */
+
         void update() override;
-        /** Iterate to the next value and return */
+
         Vec3 getNext();
+
         /** Retrieve the current value without iterating */
         Vec3 peek();
     protected:

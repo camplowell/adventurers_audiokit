@@ -1,3 +1,12 @@
+# Copyright (c) 2021 Lowell Camp
+# 
+# This file is part of the Adventurer's Audiokit,
+# which is licensed under the Mozilla Public License 2.0
+# See https://opensource.org/licenses/MPL-2.0
+
+# This Makefile provides some global definitions and properties
+# shared across all project buildfiles.
+
 ##---------------------------------------------------------------------
 ## GLOBAL PROPERTIES
 ##---------------------------------------------------------------------

@@ -1,9 +1,18 @@
+/*
+ * Copyright (c) 2021 Lowell Camp
+ * 
+ * This file is part of the Adventurer's Audiokit,
+ * which is licensed under the Mozilla Public License 2.0
+ * See https://opensource.org/licenses/MPL-2.0
+ */
+
 #pragma once
 
 #include "../node.h"
 
 namespace audio_graph {
 
+    /** Simple sinewave generator node */
     class SineNode : public Node {
         public:
             SineNode(): amplitude({1.0f}), frequency({440.0f}) {}

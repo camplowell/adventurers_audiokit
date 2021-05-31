@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2021 Lowell Camp
+ * 
+ * This file is part of the Adventurer's Audiokit,
+ * which is licensed under the Mozilla Public License 2.0
+ * See https://opensource.org/licenses/MPL-2.0
+ */
+
 #include "./audio_main.h"
 #include "./audio_controls.h"
 
@@ -10,14 +18,19 @@
 
 using namespace AudioModule;
 
+// Libsoundio information
 struct SoundIo *soundio;
 struct SoundIoDevice *device;
 struct SoundIoOutStream *outstream;
 
+// The global volume property 
 LinearSmoothedFloat globalGain = {0.0f};
+
+// Playback info
 std::atomic<float> latency;
 std::atomic_int bufferSize;
 
+// The audio node to play from
 audio_graph::Node *root;
 
 int setupAudio();
@@ -26,7 +39,6 @@ void closeStream();
 void closeAudio();
 
 int AudioModule::setup() {
-
     // Open an audio stream
     int err;
     if (err = setupAudio()) {
@@ -85,6 +97,7 @@ void AudioModule::setRoot(audio_graph::Node* node) {
 void write_callback(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)
 {
+    // Get the channel layout and playback information
     const struct SoundIoChannelLayout *layout = &outstream->layout;
     float float_sample_rate = outstream->sample_rate;
 
@@ -109,7 +122,7 @@ void write_callback(struct SoundIoOutStream *outstream,
     // Write to the buffer
     while (frames_left > 0) {
         int frame_count = frames_left;
-
+        // Signal we want to write to the output stream
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
             exit(1);
@@ -119,10 +132,11 @@ void write_callback(struct SoundIoOutStream *outstream,
             break;
 
         if (root) {
+            // Process audio using the node
             root->prepareForNextBlock();
             root->process();
             PositionalChannelBuffer& buffer = root->getOutput();
-
+            // Copy the node's output into audio out.
             for (int frame = 0; frame < frames_left; frame++) {
                 float sample = buffer.get(frame, 0);
                 float globalMult = globalGain.getNext();
@@ -132,6 +146,7 @@ void write_callback(struct SoundIoOutStream *outstream,
                 }
             }
         } else {
+            // No root node; play silence.
             for (int frame = 0; frame < frames_left; frame++) {
                 for (int channel = 0; channel < layout->channel_count; channel++) {
                     float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
@@ -147,7 +162,7 @@ void write_callback(struct SoundIoOutStream *outstream,
                 
             }
         }
-
+        // Signal we're done writing to the output stream
         if ((err = soundio_outstream_end_write(outstream))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
             exit(1);
@@ -211,13 +226,17 @@ int openStream(int index) {
 }
 
 void closeStream() {
+    // Close the output stream
     soundio_outstream_destroy(outstream);
     printf("Audio channel closed\n");
+    // Unreference the output device
     soundio_device_unref(device);
-    printf("Released device\n");
+    printf("Unreferenced audio device\n");
 }
 
 void closeAudio() {
+    // First stop playback and close the device
     closeStream();
+    // Close the soundio context
     soundio_destroy(soundio);
 }

@@ -1,3 +1,22 @@
+# Copyright (c) 2021 Lowell Camp
+# 
+# This file is part of the Adventurer's Audiokit,
+# which is licensed under the Mozilla Public License 2.0
+# See https://opensource.org/licenses/MPL-2.0
+
+#
+# Cross Platform Makefile
+# Compatible with MSYS2/MINGW, Ubuntu 14.04.1 and Mac OS X
+#
+# You will need GLFW (http://www.glfw.org):
+# Linux:
+#   apt-get install libglfw-dev
+# Mac OS X:
+#   brew install glfw
+# MSYS2:
+#   pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-glfw
+#
+
 include defs.Makefile
 
 EXE = adventurers_audiokit
