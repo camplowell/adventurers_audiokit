@@ -68,8 +68,8 @@ all: $(EXE)
 
 .PHONY: clean
 clean:
-	rm -r $(BINDIR)/*
-	rm $(EXE)
+	rm -rf $(BINDIR)/*
+	rm -f $(EXE)
 	$(DONE_MSG)
 
 # Compile all source code (if applicable)
