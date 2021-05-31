@@ -1,5 +1,7 @@
 #include "adventurers_audiokit.h"
 #include "audio/audio_main.h"
+//#include "audio/node.h"
+#include "audio/nodes/sine_node.h"
 //#include "imgui.h"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -7,8 +9,9 @@
 using namespace Audiokit_UI;
 
 // Our state
-bool show_another_window = false;
+bool show_sine_window = false;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+audio_graph::SineNode rootNode;
 
 void Audiokit_UI::setup() {
     int err;
@@ -16,6 +19,8 @@ void Audiokit_UI::setup() {
         fprintf(stderr, "Failed to set up audio (%d)\n", err);
         exit(1);
     }
+    AudioModule::initialize(&rootNode);
+    AudioModule::setRoot(&rootNode);
 }
 
 void Audiokit_UI::loop() {
@@ -23,16 +28,17 @@ void Audiokit_UI::loop() {
     
     // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
     {
-        static float f = 0.0f;
+        static float volume = AudioModule::getGlobalGain();
         static int counter = 0;
 
         // Style is latched between Begin() and End() calls
         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
         ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-        ImGui::Checkbox("Another Window", &show_another_window);
+        ImGui::Checkbox("Sine generator", &show_sine_window);
 
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("Volume", &volume, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        AudioModule::setGlobalGain(volume);
         ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
@@ -45,22 +51,22 @@ void Audiokit_UI::loop() {
     }
 
     // 3. Show another simple window.
-    if (show_another_window)
+    if (show_sine_window)
     {
-        float freq = AudioModule::getFrequency();
-        float gain = AudioModule::getAmplitude();
+        float amp = rootNode.amplitude.getTarget();
+        float freq = rootNode.frequency.getTarget();
 
-        ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::Begin("Sine generator", &show_sine_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Sine generator controls are here");
         // Drag box for the sine generator frequency
         ImGui::DragFloat("Frequncy", &freq, 1.0f, 40.0f, 4000.0f, "%.3f", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_NoRoundToFormat);
-        AudioModule::setFrequency(freq);
+        rootNode.frequency.set(freq);
         // Drag box for the sine generator amblitude
-        ImGui::DragFloat("Amplitude", &gain, 0.005f, 0.0f, 1.0f, "%.3f");
-        AudioModule::setAmplitude(gain);
+        ImGui::DragFloat("Amplitude", &amp, 0.005f, 0.0f, 1.0f, "%.3f");
+        rootNode.amplitude.set(amp);
 
         if (ImGui::Button("Close Me"))
-            show_another_window = false;
+            show_sine_window = false;
         ImGui::End();
     }
 }

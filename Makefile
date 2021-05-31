@@ -6,7 +6,8 @@ BASE_DIR := src
 
 SRCS := main.cpp adventurers_audiokit.cpp \
 backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp \
-audio/audio_main.cpp audio/audio_controls.cpp
+audio/audio_main.cpp audio/audio_controls.cpp \
+audio/node.cpp
 
 INCLUDES := src lib/imgui
 

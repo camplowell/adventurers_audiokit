@@ -9,16 +9,16 @@
 #endif
 
 using namespace AudioModule;
-static const float TWO_PI = 2.0f * 3.1415926535f;
 
 struct SoundIo *soundio;
 struct SoundIoDevice *device;
 struct SoundIoOutStream *outstream;
 
-LinearSmoothedFloat frequency = {440.0f, 0.2f, 44100.0f};
-LinearSmoothedFloat gain = {0.0f, 0.2f, 44100.0f};
+LinearSmoothedFloat globalGain = {0.0f};
+std::atomic<float> latency;
+std::atomic_int bufferSize;
 
-float phase;
+audio_graph::Node *root;
 
 int setupAudio();
 int openStream(int device = soundio_default_output_device_index(soundio));
@@ -26,48 +26,63 @@ void closeStream();
 void closeAudio();
 
 int AudioModule::setup() {
+
+    // Open an audio stream
     int err;
     if (err = setupAudio()) {
         return err;
     }
 
-    // Set up gain smoothing
-    gain.setSmoothing(0.02f, outstream->sample_rate);
-    frequency.setSmoothing(0.01f, outstream->sample_rate);
+    // Set up globalGain smoothing
+    globalGain.setSampleRate(static_cast<float>(outstream->sample_rate));
+    globalGain.setSmoothing(0.01f);
 
-    gain.set(1.0f);
-    frequency.set(440.0f);
+    globalGain.set(1.0f);
+
+    while(!bufferSize.load()) {}
     
     return 0;
 }
 
 void AudioModule::shutdown() {
-    gain.setSmoothing(0.01f, outstream->sample_rate);
-    gain.set(0.0f);
-    Sleep(100);
+    // Set gain to 0 after 0.01s
+    globalGain.setSmoothing(0.01f);
+    globalGain.set(0.0f);
+    // Wait until the gain is actually 0
+    while(globalGain.peek() > 0.0f) {}
+    // Wait until we are sure the buffer has been sent
+    Sleep(static_cast<int>(ceil(latency.load())));
+    // Close the audio channel
     closeAudio();
 }
+
 void AudioModule::loop() {
     soundio_flush_events(soundio);
 }
 
-float AudioModule::getFrequency() {
-    return frequency.getTarget();
+float AudioModule::getGlobalGain() {
+    return globalGain.getTarget();
 }
 
-void AudioModule::setFrequency(float freq) {
-    frequency.set(freq);
+void AudioModule::setGlobalGain(float amp) {
+    globalGain.set(amp);
 }
 
-float AudioModule::getAmplitude() {
-    return gain.getTarget();
+void AudioModule::initialize(audio_graph::Node* node) {
+    printf("Initializing node\n");
+    audio_graph::PlaybackInitialisationInfo info = {
+        static_cast<float>(outstream->sample_rate),
+        bufferSize.load()
+    };
+    node->initialize(info);
+    printf("Finished initializing node\n");
 }
 
-void AudioModule::setAmplitude(float amp) {
-    gain.set(amp);
+void AudioModule::setRoot(audio_graph::Node* node) {
+    root = node;
 }
 
-static void write_callback(struct SoundIoOutStream *outstream,
+void write_callback(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)
 {
     const struct SoundIoChannelLayout *layout = &outstream->layout;
@@ -77,9 +92,21 @@ static void write_callback(struct SoundIoOutStream *outstream,
     int frames_left = frame_count_max;
     int err;
 
-    gain.update();
-    frequency.update();
+    // Get the real latency of the system; this lets us know how long we have to wait for a smooth exit
+    {
+        double lat;
+        if (err = soundio_outstream_get_latency(outstream, &lat)) {
+            fprintf(stderr, "Failed to get output stream latency: %s\n", soundio_strerror(err));
+            exit(1);
+        }
+        latency.store(static_cast<float>(lat * 1000));
+        bufferSize.store(frames_left);
+    }
 
+    // Update inputs
+    globalGain.update();
+
+    // Write to the buffer
     while (frames_left > 0) {
         int frame_count = frames_left;
 
@@ -91,16 +118,35 @@ static void write_callback(struct SoundIoOutStream *outstream,
         if (!frame_count)
             break;
 
-        for (int frame = 0; frame < frame_count; frame += 1) {
-            float radians_per_sample = (frequency.getNext() * TWO_PI) / float_sample_rate;
-            float sample = sinf(phase) * gain.getNext();
-            for (int channel = 0; channel < layout->channel_count; channel += 1) {
-                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
-                *ptr = sample;
+        if (root) {
+            root->prepareForNextBlock();
+            root->process();
+            PositionalChannelBuffer& buffer = root->getOutput();
+
+            for (int frame = 0; frame < frames_left; frame++) {
+                float sample = buffer.get(frame, 0);
+                float globalMult = globalGain.getNext();
+                for(int channel = 0; channel < layout->channel_count; channel++) {
+                    float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
+                    *ptr = sample * globalMult;
+                }
             }
-            phase += radians_per_sample;
+        } else {
+            for (int frame = 0; frame < frames_left; frame++) {
+                for (int channel = 0; channel < layout->channel_count; channel++) {
+                    float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
+                    *ptr = 0.0f;
+                }
+            }
         }
-        phase = fmodf(phase, TWO_PI);
+
+        // Set audio buffer contents here
+        for (int frame = 0; frame < frames_left; frame++) {
+            for (int channel = 0; channel < layout->channel_count; channel++) {
+                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
+                
+            }
+        }
 
         if ((err = soundio_outstream_end_write(outstream))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));

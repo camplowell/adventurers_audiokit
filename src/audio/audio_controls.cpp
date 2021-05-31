@@ -14,7 +14,9 @@ LinearSmoothedFloat::LinearSmoothedFloat(float value, float transitionSeconds, f
     this->nextTarget.store(value);
     this->target = value;
     // Convert transition length from seconds to samples
-    this->transitionLength.store(static_cast<int>(transitionSeconds * sampleRate));
+    this->transitionSeconds = transitionSeconds;
+    this->sampleRate = sampleRate;
+    setSmoothing();
 }
 
 
@@ -26,9 +28,18 @@ float LinearSmoothedFloat::getTarget() {
     return nextTarget.load();
 }
 
+void LinearSmoothedFloat::setSampleRate(float rate) {
+    this->sampleRate = rate;
+    setSmoothing();
+}
 
-void LinearSmoothedFloat::setSmoothing(float transitionSeconds, float sampleRate) {
-    this->transitionLength.store(static_cast<int>(transitionSeconds * sampleRate));
+void LinearSmoothedFloat::setSmoothing(float length) {
+    this->transitionSeconds = length;
+    setSmoothing();
+}
+
+void LinearSmoothedFloat::setSmoothing() {
+    this->transitionLength.store(static_cast<int>(this->transitionSeconds * this->sampleRate));
 }
 
 

@@ -14,12 +14,12 @@ Currently, it does very little, as the infrastructure to perform more advanced o
 - Parametric EQ
 
 
-### Foundational tasks ![Progress](https://progress-bar.dev/4/?scale=14&title=progress&color=babaca&suffix=%2F14)
+### Foundational tasks ![Progress](https://progress-bar.dev/5/?scale=14&title=progress&color=babaca&suffix=%2F14)
 - [x] Integrate Dear IMGUI into build process
 - [x] Integrate Libsoundio into build process
 - [x] Isolate platform-specific code
 - [x] Smoothed numerical input to audio thread
-- [ ] Move audio calculation to node class
+- [x] Move audio calculation to node class
 - [ ] Read audio (WAV) files from disk
 - [ ] Implement mixer node
 - [ ] Audio node graphs

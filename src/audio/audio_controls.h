@@ -15,25 +15,34 @@ class AudioControl {
 /** A linearly smoothed, lock-free and thread-safe float parameter. */
 class LinearSmoothedFloat : public AudioControl<float> {
     public:
-        LinearSmoothedFloat(float value, float transitionSeconds, float sampleRate);
+        LinearSmoothedFloat(float value, float transitionSeconds = 0.01f, float sampleRate = 44100.0f);
         /** Set the next target value */
         void set(float target) override;
         float getTarget() override;
+        /** Set the sample rate for calculating smoothing time */
+        void setSampleRate(float);
         /** Set how long the smoothing takes */
-        void setSmoothing(float transitionSeconds, float sampleRate);
+        void setSmoothing(float transitionSeconds);
         /** Update the audio thread's view of the target value */
         void update() override;
         /** Iterate to the next value and return */
         float getNext();
         /** Retrieve the current value without iterating */
         float peek();
-    protected:
+    private:
+        void setSmoothing();
+        // Accessed by UI thread
+        float sampleRate;
+        float transitionSeconds;
+        // Accessed by both
         std::atomic<float> nextTarget;
+        std::atomic_int transitionLength;
+        // Accessed by audio thread
         float target;
         float step;
         float value;
         int countdown;
-        std::atomic_int transitionLength;
+        
 };
 
 // A Vec3 with linearly smoothed channels
