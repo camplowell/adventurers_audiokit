@@ -21,14 +21,14 @@ namespace audio_graph {
             /// The frequency of the generated wave
             LinearSmoothedFloat frequency;
         protected:
-            static constexpr float TWO_PI = 2.0f * 3.1415926535f;
+            static constexpr double TWO_PI = 2.0f * 3.14159265358979311599796346854f;
             void prepareToPlay(const PlaybackInitialisationInfo& info) override {
                 this->sampleRate = info.sampleRate;
                 amplitude.setSampleRate(sampleRate);
                 frequency.setSampleRate(sampleRate);
 
-                amplitude.setSmoothing(0.01f);
-                frequency.setSmoothing(0.01f);
+                amplitude.setSmoothing(0.02f);
+                frequency.setSmoothing(0.02f);
             }
 
             void prefetchBlock() override {
@@ -38,7 +38,8 @@ namespace audio_graph {
 
             void process(PositionalChannelBuffer& out) override {
                 for (int frame = 0; frame < out.numFrames; frame++) {
-                    float sample = sinf(phase) * amplitude.getNext();
+                    float sample = static_cast<float>(sin(phase) * amplitude.getNext());
+                    //if (sample >= 1.0f) sample = 0.9999f;
                     for (int channel = 0; channel < out.numChannels; channel++) {
                         out.set(frame, channel, sample);
                     }
@@ -48,10 +49,9 @@ namespace audio_graph {
                 }
             }
 
-
         private:
-            float phase;
-            float sampleRate;
+            double phase;
+            double sampleRate;
     };
 
 }

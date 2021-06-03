@@ -9,12 +9,9 @@
 #include "./audio_main.h"
 #include "./audio_controls.h"
 
-#ifdef _WINDOWS
-#include <windows.h>
-#else
-#include <unistd.h>
-#define Sleep(x) usleep((x)*1000)
-#endif
+#include <thread>
+#include <chrono>
+#define sleep_for(x) std::this_thread::sleep_for(std::chrono::milliseconds(x))
 
 using namespace AudioModule;
 
@@ -63,7 +60,9 @@ void AudioModule::shutdown() {
     // Wait until the gain is actually 0
     while(globalGain.peek() > 0.0f) {}
     // Wait until we are sure the buffer has been sent
-    Sleep(static_cast<int>(ceil(latency.load())));
+    // NOTE: VSCode is marking std::this_thread as invalid for some reason. It compiles.
+    sleep_for(static_cast<int>(ceil(latency.load())));
+    //Sleep(static_cast<int>(ceil(latency.load())));
     // Close the audio channel
     closeAudio();
 }
@@ -172,6 +171,10 @@ void write_callback(struct SoundIoOutStream *outstream,
     }
 }
 
+void underflow_notif(SoundIoOutStream* stream) {
+    fprintf(stderr, "WARNING: Underflow");
+}
+
 int setupAudio() {
     int err;
     soundio = soundio_create();
@@ -207,6 +210,7 @@ int openStream(int index) {
     outstream = soundio_outstream_create(device);
     outstream->format = SoundIoFormatFloat32NE;
     outstream->write_callback = write_callback;
+    outstream->underflow_callback = underflow_notif;
 
     int err = 0;
     if ((err = soundio_outstream_open(outstream))) {
