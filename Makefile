@@ -26,11 +26,11 @@ BASE_DIR := src
 SRCS := main.cpp adventurers_audiokit.cpp \
 backends/imgui_impl_glfw.cpp backends/imgui_impl_opengl2.cpp \
 audio/audio_main.cpp audio/audio_controls.cpp \
-audio/node.cpp
+audio/buffer.cpp audio/node.cpp
 
 INCLUDES := src lib/imgui
 
-CXXFLAGS = -std=c++17
+CXXFLAGS = 
 LIBS = 
 
 DONE_MSG = @printf "\nDone.\n\n"
@@ -118,4 +118,6 @@ $(BINDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(COMP_MESSAGE)
 #   Compile the corresponding c++ file
-	$(COMPILE.cpp) -o $@ $<
+	$(COMPILE.cpp)
+
+-include $(OBS:.o=.d)
