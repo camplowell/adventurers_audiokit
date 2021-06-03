@@ -37,4 +37,4 @@ $(BINDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(COMP_MESSAGE)
 #   Compile the corresponding c++ file
-	$(COMPILE.cpp) -o $@ $<
+	$(COMPILE.cpp)

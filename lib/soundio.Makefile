@@ -48,4 +48,4 @@ $(BINDIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(COMP_MESSAGE)
 #   Compile the corresponding c++ file
-	$(COMPILE.c) -o $@ $<
+	$(COMPILE.c)

@@ -19,8 +19,9 @@ BINDIR := bin
 DOCDIR := doc
 INCLUDES :=
 
-CFLAGS = 
-CPPFLAGS = $(CFLAGS)
+FLAGS = 
+CFLAGS = $(FLAGS) -std=c17 -MD -MP
+CPPFLAGS = $(FLAGS) -std=c++17
 
 ##---------------------------------------------------------------------
 ## FORMATTING
@@ -49,7 +50,7 @@ p_bold = \033[1m
 OBJS = $(patsubst %, $(BINDIR)/%.o, $(basename $(SRCS)))
 INCTAGS = $(addprefix -I, $(INCLUDES))
 
-COMPILE.cpp = $(CXX) $(INCTAGS) $(CPPFLAGS) -c
-COMPILE.c   = $(CC)  $(INCTAGS) $(CFLAGS)   -c
+COMPILE.cpp = $(CXX) $(INCTAGS) $(CPPFLAGS) -c -MD -MP -MF $(@:.o=.d) -o $@  $<
+COMPILE.c   = $(CC)  $(INCTAGS) $(CFLAGS)   -c -MD -MP -MF $(@:.o=.d) -o $@ $<
 
 COMP_MESSAGE = @printf "$(p_purple)Compiling$(p_no) $<\n $(p_blue)Include tags:$(p_no) $(INCTAGS)\n"
