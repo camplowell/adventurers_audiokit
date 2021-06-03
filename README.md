@@ -53,11 +53,11 @@ Make targets:
 - clean: Removes built files and clears the documentation folder.
 
 ## Dependencies
-Dear IMGUI (submodule)
-- GLFW
-- OpenGL2
+[Dear IMGUI](https://github.com/ocornut/imgui) (submodule)
+- GLFW (other window managers possible)
+- OpenGL2 (other renderers possible)
 
-Libsoundio (submodule)
+[Libsoundio](https://github.com/andrewrk/libsoundio) (submodule)
 - cmake
 - ALSA library (optional)
 - libjack2 (optional)
