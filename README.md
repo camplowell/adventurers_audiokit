@@ -14,23 +14,24 @@ Currently, it does very little, as the infrastructure to perform more advanced o
 - Parametric EQ
 
 
-### Foundational tasks ![Progress](https://progress-bar.dev/5/?scale=14&title=progress&color=babaca&suffix=%2F14)
+### Foundational tasks (Minimal vertical slice) ![Progress](https://progress-bar.dev/5/?scale=14&title=progress&color=babaca&suffix=%2F14)
 - [x] Integrate Dear IMGUI into build process
 - [x] Integrate Libsoundio into build process
 - [x] Isolate platform-specific code
 - [x] Smoothed numerical input to audio thread
 - [x] Move audio calculation to node class
-- [ ] Read audio (WAV) files from disk
 - [ ] Implement mixer node
-- [ ] Audio node graphs
+- [ ] Node graph player
   - [ ] Traversal robust to cycles
   - [ ] Single-threaded playback
   - [ ] Seamless topology changes
+- [ ] Persistent 'model' for node graph
 - [ ] Modularly link audio inputs to GUI elements
 - [ ] Deal with audio device changes
 - [ ] State machine for UI "pages"
 
-### Before V0.0.1 (Proof of concept) ![Progress](https://progress-bar.dev/0/?scale=12&tittle=progress&color=babbaca&suffix=%2F12)
+### Before V0.0.1 (Proof of concept) ![Progress](https://progress-bar.dev/0/?scale=14&tittle=progress&color=babbaca&suffix=%2F14)
+- [ ] Read audio (WAV) files from disk
 - [ ] Initialize node tree from JSON ("effect" units)
 - [ ] Tree of effects from JSON ("room" units)
 - [ ] Load gui elements from effect file
@@ -41,8 +42,10 @@ Currently, it does very little, as the infrastructure to perform more advanced o
   - [ ] Manual trigger generator
   - [ ] Density-based trigger generator
   - [ ] Pattern and tempo trigger generator
+- [ ] Noise generator
+- [ ] Parametric EQ
 - [ ] File picker
-- [ ] Fade between rooms
+
 
 ## Building
 Build management is done through GNU Make; 
