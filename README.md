@@ -1,4 +1,5 @@
 # Adventurer's Audiokit
+[![Jira](https://badgen.net/badge/icon/jira?icon=jira&label)](https://camplowell.atlassian.net/jira/software/c/projects/AAK/boards/4)
 
 Will eventually become a procedural audioscape generator for tabletop roleplaying.
 Currently, it does very little, as the infrastructure to perform more advanced operations is not done yet.
